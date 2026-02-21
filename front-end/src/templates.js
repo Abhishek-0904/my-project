@@ -1,0 +1,25 @@
+export const TEMPLATES = [
+  { id: "executive", name: "Executive Elite", color: "#1e293b", accent: "#eab308" },
+  { id: "professional", name: "Global Professional", color: "#0f172a", accent: "#38bdf8" },
+  { id: "classic", name: "Heritage Classic", color: "#334155", accent: "#94a3b8" },
+  { id: "modern", name: "Modern Minimal", color: "#2563eb", accent: "#60a5fa" },
+  { id: "corporate", name: "Corporate Standard", color: "#134e4a", accent: "#2dd4bf" },
+  { id: "luxe", name: "Premium Luxe", color: "#171717", accent: "#fbbf24" },
+  { id: "minimal", name: "Pure Essence", color: "#18181b", accent: "#a1a1aa" },
+  { id: "tech", name: "IT Professional", color: "#164e63", accent: "#22d3ee" },
+  { id: "academic", name: "Academic", color: "#0369a1", accent: "#0ea5e9" },
+  { id: "clean", name: "Clean", color: "#15803d", accent: "#22c55e" },
+  { id: "bold", name: "Bold", color: "#be123c", accent: "#f43f5e" },
+  { id: "elegant", name: "Elegant", color: "#4c1d95", accent: "#7c3aed" },
+  { id: "contemporary", name: "Contemporary", color: "#155e75", accent: "#06b6d4" },
+  { id: "minimalist", name: "Minimalist", color: "#18181b", accent: "#71717a" },
+  { id: "stylish", name: "Stylish", color: "#831843", accent: "#db2777" },
+  { id: "ocean", name: "Ocean", color: "#0284c7", accent: "#38bdf8" },
+  { id: "sunset", name: "Sunset", color: "#ea580c", accent: "#fb923c" },
+  { id: "monochrome", name: "Monochrome", color: "#171717", accent: "#525252" },
+  { id: "startup", name: "Startup", color: "#059669", accent: "#34d399" },
+  { id: "editorial", name: "Editorial", color: "#0c4a6e", accent: "#0ea5e9" },
+  { id: "serenity", name: "Serenity", color: "#8b5cf6", accent: "#f5f3ff" },
+];
+
+export const getTemplate = (id) => TEMPLATES.find((t) => t.id === id) || TEMPLATES[0];
