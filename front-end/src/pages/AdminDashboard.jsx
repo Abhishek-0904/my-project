@@ -118,6 +118,14 @@ export default function AdminDashboard() {
                         const reportsData = await reportsRes.json();
                         setReports(reportsData);
                     }
+
+                    // Fetch settings
+                    const settingsRes = await fetch('http://localhost:5000/api/admin/settings', { headers });
+                    if (settingsRes.ok) {
+                        const settingsData = await settingsRes.json();
+                        setSettings(settingsData);
+                    }
+
                     setError(null);
                 } else {
                     setError('Server error: Failed to load data.');
@@ -157,10 +165,30 @@ export default function AdminDashboard() {
 
     const handleSaveSettings = async () => {
         setSavingSettings(true);
-        // Simulate API call
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        setSavingSettings(false);
-        showToast('Settings saved successfully!', "success");
+        try {
+            const storedUser = JSON.parse(localStorage.getItem('user'));
+            const res = await fetch('http://localhost:5000/api/admin/settings', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${storedUser.token}`
+                },
+                body: JSON.stringify(settings)
+            });
+
+            if (res.ok) {
+                const updatedData = await res.json();
+                setSettings(updatedData);
+                showToast('Settings saved successfully!', "success");
+            } else {
+                const data = await res.json();
+                showToast(data.message || 'Failed to save settings', "error");
+            }
+        } catch (err) {
+            showToast('Network error. Please try again.', "error");
+        } finally {
+            setSavingSettings(false);
+        }
     };
 
     const handleLogout = () => {
@@ -189,7 +217,7 @@ export default function AdminDashboard() {
             <aside className="ad-sidebar">
                 <div className="ad-brand">
                     <div className="ad-brand-icon">📜</div>
-                    <h1>AdminPro</h1>
+                    <h1>{settings.siteTitle}</h1>
                 </div>
 
                 <p className="ad-nav-label">Main Menu</p>

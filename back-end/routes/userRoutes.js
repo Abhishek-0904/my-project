@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
-const { protect, admin } = require('../middleware/authMiddleware');
+const { protect, admin, checkMaintenance } = require('../middleware/authMiddleware');
 
 // @desc    Get user profile
 // @route   GET /api/users/profile
 // @access  Private
-router.get('/profile', protect, async (req, res) => {
+router.get('/profile', protect, checkMaintenance, async (req, res) => {
     try {
         const user = await User.findById(req.user._id).select('-password');
         if (user) {
@@ -22,7 +22,7 @@ router.get('/profile', protect, async (req, res) => {
 // @desc    Update user profile
 // @route   PUT /api/users/profile
 // @access  Private
-router.put('/profile', protect, async (req, res) => {
+router.put('/profile', protect, checkMaintenance, async (req, res) => {
     try {
         const user = await User.findById(req.user._id);
 

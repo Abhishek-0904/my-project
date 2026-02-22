@@ -13,6 +13,8 @@ export default function Login() {
     });
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
+    const [requires2FA, setRequires2FA] = useState(false);
+    const [otp, setOtp] = useState("");
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -52,6 +54,13 @@ export default function Login() {
                 return;
             }
 
+            if (data.requires2FA) {
+                setRequires2FA(true);
+                showToast("Verification code sent to your email", "info");
+                setLoading(false);
+                return;
+            }
+
             // Save user info to local storage (only for Login)
             localStorage.setItem("user", JSON.stringify(data));
 
@@ -59,6 +68,39 @@ export default function Login() {
             await fetchProfiles();
 
             // Redirect based on role
+            if (data.role === "admin") {
+                navigate("/admin");
+            } else {
+                navigate("/dashboard");
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleVerifyOTP = async (e) => {
+        e.preventDefault();
+        setError("");
+        setLoading(true);
+
+        try {
+            const response = await fetch("http://localhost:5000/api/auth/verify-otp", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email: formData.email, otp }),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Invalid code");
+            }
+
+            localStorage.setItem("user", JSON.stringify(data));
+            await fetchProfiles();
+
             if (data.role === "admin") {
                 navigate("/admin");
             } else {
@@ -96,56 +138,87 @@ export default function Login() {
 
                         {error && <div className="error-message">{error}</div>}
 
-                        <form onSubmit={handleSubmit}>
-                            {!isLogin && (
+                        {requires2FA ? (
+                            <form onSubmit={handleVerifyOTP}>
                                 <div className="input-group">
-                                    <label>Full Name</label>
+                                    <label>Verification Code</label>
+                                    <p className="form-subtitle" style={{ fontSize: '0.8rem', marginBottom: '1rem', color: 'var(--up-text-muted)' }}>
+                                        Enter the 6-digit code sent to <b>{formData.email}</b>
+                                    </p>
                                     <input
                                         type="text"
-                                        name="name"
-                                        placeholder="John Doe"
-                                        value={formData.name}
+                                        placeholder="Enter 6-digit code"
+                                        value={otp}
+                                        onChange={(e) => setOtp(e.target.value)}
+                                        maxLength="6"
+                                        style={{ textAlign: 'center', fontSize: '24px', letterSpacing: '4px' }}
+                                        required
+                                    />
+                                </div>
+                                <button type="submit" className="submit-btn" disabled={loading}>
+                                    {loading ? "Verifying..." : "Verify & Login"}
+                                </button>
+                                <button
+                                    type="button"
+                                    className="switch-btn"
+                                    onClick={() => setRequires2FA(false)}
+                                    style={{ marginTop: '1rem', width: '100%', background: 'transparent', border: 'none', color: 'var(--up-primary)', cursor: 'pointer' }}
+                                >
+                                    Back to Login
+                                </button>
+                            </form>
+                        ) : (
+                            <form onSubmit={handleSubmit}>
+                                {!isLogin && (
+                                    <div className="input-group">
+                                        <label>Full Name</label>
+                                        <input
+                                            type="text"
+                                            name="name"
+                                            placeholder="John Doe"
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            required
+                                        />
+                                    </div>
+                                )}
+                                <div className="input-group">
+                                    <label>Email Address</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        placeholder="name@example.com"
+                                        value={formData.email}
                                         onChange={handleChange}
                                         required
                                     />
                                 </div>
-                            )}
-                            <div className="input-group">
-                                <label>Email Address</label>
-                                <input
-                                    type="email"
-                                    name="email"
-                                    placeholder="name@example.com"
-                                    value={formData.email}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-                            <div className="input-group">
-                                <label>Password</label>
-                                <input
-                                    type="password"
-                                    name="password"
-                                    placeholder="••••••••"
-                                    value={formData.password}
-                                    onChange={handleChange}
-                                    required
-                                />
-                            </div>
-
-                            {isLogin && (
-                                <div className="form-options">
-                                    <label className="remember-me">
-                                        <input type="checkbox" /> Remember me
-                                    </label>
-                                    <a href="#" className="forgot-pwd">Forgot password?</a>
+                                <div className="input-group">
+                                    <label>Password</label>
+                                    <input
+                                        type="password"
+                                        name="password"
+                                        placeholder="••••••••"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
-                            )}
 
-                            <button type="submit" className="submit-btn" disabled={loading}>
-                                {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
-                            </button>
-                        </form>
+                                {isLogin && (
+                                    <div className="form-options">
+                                        <label className="remember-me">
+                                            <input type="checkbox" /> Remember me
+                                        </label>
+                                        <a href="#" className="forgot-pwd">Forgot password?</a>
+                                    </div>
+                                )}
+
+                                <button type="submit" className="submit-btn" disabled={loading}>
+                                    {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
+                                </button>
+                            </form>
+                        )}
 
                         <div className="social-login">
                             <span className="divider">Or continue with</span>

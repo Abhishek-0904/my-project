@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Resume = require('../models/Resume');
-const { protect } = require('../middleware/authMiddleware');
+const { protect, checkMaintenance } = require('../middleware/authMiddleware');
 
 // @desc    Get all resumes for logged in user
 // @route   GET /api/resumes
 // @access  Private
-router.get('/', protect, async (req, res) => {
+router.get('/', protect, checkMaintenance, async (req, res) => {
     try {
         const resumes = await Resume.find({ user: req.user._id }).sort({ lastModified: -1 });
         res.json(resumes);
@@ -18,7 +18,7 @@ router.get('/', protect, async (req, res) => {
 // @desc    Create a new resume
 // @route   POST /api/resumes
 // @access  Private
-router.post('/', protect, async (req, res) => {
+router.post('/', protect, checkMaintenance, async (req, res) => {
     try {
         const { title, template, data } = req.body;
         const resume = new Resume({
@@ -38,7 +38,7 @@ router.post('/', protect, async (req, res) => {
 // @desc    Update a resume
 // @route   PUT /api/resumes/:id
 // @access  Private
-router.put('/:id', protect, async (req, res) => {
+router.put('/:id', protect, checkMaintenance, async (req, res) => {
     try {
         const resume = await Resume.findById(req.params.id);
 
@@ -65,7 +65,7 @@ router.put('/:id', protect, async (req, res) => {
 // @desc    Delete a resume
 // @route   DELETE /api/resumes/:id
 // @access  Private
-router.delete('/:id', protect, async (req, res) => {
+router.delete('/:id', protect, checkMaintenance, async (req, res) => {
     try {
         const resume = await Resume.findById(req.params.id);
 

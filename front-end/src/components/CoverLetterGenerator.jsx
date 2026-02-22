@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import CustomDropdown from './CustomDropdown';
 import useResume from '../pages/resumecontext';
 
 const CoverLetterGenerator = ({ profiles }) => {
@@ -113,16 +114,12 @@ ${data.name}
                 <div className="cl-input-group">
                     <div className="ud-form-group">
                         <label>Select Resume Profile</label>
-                        <select
-                            className="ud-input-v2"
+                        <CustomDropdown
+                            options={profiles.map(p => ({ label: p.title, value: p._id }))}
                             value={selectedProfileId}
-                            onChange={(e) => setSelectedProfileId(e.target.value)}
-                        >
-                            {profiles.length === 0 && <option value="">No profiles found</option>}
-                            {profiles.map(p => (
-                                <option key={p._id} value={p._id}>{p.title}</option>
-                            ))}
-                        </select>
+                            onChange={(val) => setSelectedProfileId(val)}
+                            placeholder={profiles.length === 0 ? "No profiles found" : "Select a profile"}
+                        />
                     </div>
 
                     <div className="ud-form-group">

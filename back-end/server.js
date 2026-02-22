@@ -7,7 +7,7 @@ const userRoutes = require('./routes/userRoutes');
 const resumeRoutes = require('./routes/resumeRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 
-dotenv.config();
+dotenv.config(); // Load environment variables
 
 console.log('PORT from env:', process.env.PORT);
 console.log('MONGODB_URI from env:', process.env.MONGODB_URI);

@@ -325,7 +325,8 @@ export function ResumeProvider({ children }) {
         toast,
         showToast,
         setToast,
-        confirmAction
+        confirmAction,
+        fetchProfiles
       }}
     >
       {children}

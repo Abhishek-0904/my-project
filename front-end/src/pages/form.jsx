@@ -7,6 +7,7 @@ import ResumeTipsWidget from "../components/ResumeTipsWidget";
 import { getTemplate } from "../templates";
 import confetti from "canvas-confetti";
 import "./form.css";
+import CustomDropdown from "../components/CustomDropdown";
 
 export default function Form() {
   const {
@@ -160,15 +161,13 @@ export default function Form() {
         </button>
         <div className="header-center">
           <div className="profile-switcher">
-            <select
-              value={activeProfileId || ""}
-              onChange={(e) => setActiveProfileId(e.target.value)}
-              className="profile-select"
-            >
-              {profiles.map(p => (
-                <option key={p._id} value={p._id}>{p.title}</option>
-              ))}
-            </select>
+            <CustomDropdown
+              options={profiles.map(p => ({ label: p.title, value: p._id }))}
+              value={activeProfileId}
+              onChange={(val) => setActiveProfileId(val)}
+              className="small"
+              style={{ width: '180px' }}
+            />
             <button className="add-profile-btn" onClick={() => {
               setModalTitle("Create New Profile");
               setModalPlaceholder("e.g. Developer Resume");

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Settings = require('../models/Settings');
 
 const protect = async (req, res, next) => {
     let token;
@@ -36,4 +37,22 @@ const admin = (req, res, next) => {
     }
 };
 
-module.exports = { protect, admin };
+const checkMaintenance = async (req, res, next) => {
+    try {
+        const settings = await Settings.findOne();
+        if (settings && settings.maintenanceMode) {
+            // Allow admins to bypass maintenance mode
+            if (req.user && req.user.role === 'admin') {
+                return next();
+            }
+            return res.status(503).json({
+                message: 'System is under maintenance. Please try again later.'
+            });
+        }
+        next();
+    } catch (error) {
+        next(); // Default to allowing if settings check fails
+    }
+};
+
+module.exports = { protect, admin, checkMaintenance };
