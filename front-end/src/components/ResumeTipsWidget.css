@@ -1,0 +1,230 @@
+.resume-tips-widget {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    font-family: 'Inter', sans-serif;
+}
+
+.tips-toggle-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #1e293b;
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.tips-toggle-btn:hover {
+    transform: scale(1.05) translateY(-2px);
+    background: #0f172a;
+    box-shadow: 0 15px 35px rgba(99, 102, 241, 0.3);
+}
+
+.tips-icon {
+    font-size: 1.25rem;
+}
+
+.tips-badge {
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    min-width: 20px;
+}
+
+.tips-text {
+    font-weight: 600;
+    font-size: 0.9rem;
+}
+
+.tips-panel {
+    position: absolute;
+    bottom: 80px;
+    right: 0;
+    width: 320px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.2);
+    overflow: hidden;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+}
+
+.tips-header {
+    background: #f8fafc;
+    padding: 15px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.tips-header h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.close-tips {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #94a3b8;
+    line-height: 1;
+}
+
+.score-section {
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    background: linear-gradient(to bottom, #f8fafc, white);
+}
+
+.score-circle {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 6px solid #6366f1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1);
+}
+
+.score-value {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: #4f46e5;
+}
+
+.score-label {
+    font-size: 0.6rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #94a3b8;
+}
+
+.tips-list {
+    padding: 10px 20px 20px;
+    max-height: 350px;
+    overflow-y: auto;
+}
+
+.tip-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: #f1f5f9;
+    border-radius: 12px;
+    transition: all 0.2s;
+}
+
+.tip-item p {
+    margin: 0;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    color: #475569;
+}
+
+.priority-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 4px;
+}
+
+.tip-item.high {
+    background: #fee2e2;
+    border-left: 4px solid #ef4444;
+}
+
+.tip-item.high .priority-dot {
+    background: #ef4444;
+}
+
+.tip-item.high p {
+    color: #991b1b;
+}
+
+.tip-item.medium {
+    background: #fef3c7;
+    border-left: 4px solid #f59e0b;
+}
+
+.tip-item.medium .priority-dot {
+    background: #f59e0b;
+}
+
+.tip-item.medium p {
+    color: #92400e;
+}
+
+.tip-item.low {
+    background: #f0f9ff;
+    border-left: 4px solid #0ea5e9;
+}
+
+.tip-item.low .priority-dot {
+    background: #0ea5e9;
+}
+
+.all-clear {
+    text-align: center;
+    padding: 30px 10px;
+}
+
+.check-icon {
+    font-size: 3rem;
+    display: block;
+    margin-bottom: 10px;
+}
+
+.tips-footer {
+    padding: 12px 20px;
+    background: #ef4444;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* Animations */
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.animate-in {
+    animation: slideIn 0.3s cubic-bezier(0.165, 0.84, 0.44, 1) both;
+}
+
+.resume-tips-widget.all-done .tips-toggle-btn {
+    background: #10b981;
+    border-color: #10b981;
+}
+
+.resume-tips-widget.all-done .tips-badge {
+    background: rgba(255, 255, 255, 0.3);
+}

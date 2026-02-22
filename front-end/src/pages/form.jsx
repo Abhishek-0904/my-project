@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useResume from "./resumecontext";
 import ResumePreview from "../components/ResumePreview";
+import AIAssistant from "../components/AIAssistant";
+import ResumeTipsWidget from "../components/ResumeTipsWidget";
 import { getTemplate } from "../templates";
 import confetti from "canvas-confetti";
 import "./form.css";
@@ -26,7 +28,12 @@ export default function Form() {
     setSelectedGradient,
     moveSection,
     reorderSections,
-    toggleSection
+    toggleSection,
+    isSyncing,
+    toast,
+    showToast,
+    setToast,
+    confirmAction
   } = useResume();
   const [currentStep, setCurrentStep] = useState(1);
   const [saveStatus, setSaveStatus] = useState("Saved");
@@ -75,13 +82,6 @@ export default function Form() {
     }
   }, [template, navigate]);
 
-  // Visual feedback for auto-save
-  useEffect(() => {
-    setSaveStatus("Saving...");
-    const timer = setTimeout(() => setSaveStatus("Saved"), 500);
-    return () => clearTimeout(timer);
-  }, [resumeData]);
-
   const t = getTemplate(template || "modern");
   if (!template) return null;
 
@@ -118,6 +118,14 @@ export default function Form() {
   };
 
   const nextStep = () => {
+    // Basic validation for the first step
+    if (currentStep === 1) {
+      if (!resumeData.name || !resumeData.email || !resumeData.title) {
+        showToast("Please fill in Name, Email, and Title!", "warning");
+        return;
+      }
+    }
+
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -139,10 +147,9 @@ export default function Form() {
       gradient: selectedGradient
     };
     const encodedData = btoa(encodeURIComponent(JSON.stringify(shareData)));
-    const shareUrl = `${window.location.origin}/view?shared=${encodedData}`;
-
-    navigator.clipboard.writeText(shareUrl);
-    alert("Shareable link copied to clipboard! 🔗\nAnyone with this link can view your resume.");
+    const link = `${window.location.origin}/view?shared=${btoa(encodeURIComponent(JSON.stringify(shareData)))}`;
+    navigator.clipboard.writeText(link);
+    showToast("Shareable link copied to clipboard!", "success");
   };
 
   return (
@@ -159,7 +166,7 @@ export default function Form() {
               className="profile-select"
             >
               {profiles.map(p => (
-                <option key={p.id} value={p.id}>{p.name}</option>
+                <option key={p._id} value={p._id}>{p.title}</option>
               ))}
             </select>
             <button className="add-profile-btn" onClick={() => {
@@ -170,7 +177,7 @@ export default function Form() {
               setShowModal(true);
             }} title="New Profile">+</button>
             <button className="rename-profile-btn" onClick={() => {
-              const currentName = profiles.find(p => p.id === activeProfileId)?.name || "";
+              const currentName = profiles.find(p => p._id === activeProfileId)?.title || "";
               setModalTitle("Rename Profile");
               setModalPlaceholder("Enter new name");
               setModalValue(currentName);
@@ -178,7 +185,13 @@ export default function Form() {
               setShowModal(true);
             }} title="Rename Profile">✎</button>
             <button className="delete-profile-btn" onClick={() => {
-              if (profiles.length > 1 && window.confirm("Delete this profile?")) deleteProfile(activeProfileId);
+              if (profiles.length > 1) {
+                confirmAction({
+                  title: "Delete Resume?",
+                  message: "This action cannot be undone. All your data for this profile will be permanently removed.",
+                  onConfirm: () => deleteProfile(activeProfileId)
+                });
+              }
             }} title="Delete Profile" disabled={profiles.length <= 1}>×</button>
           </div>
           <div className="status-bar">
@@ -191,9 +204,16 @@ export default function Form() {
                 </div>
               </div>
             </div>
-            <span className={`save-status ${saveStatus === 'Saving...' ? 'saving' : ''}`}>
-              {saveStatus === 'Saved' ? '✓ Saved' : '● Saving...'}
-            </span>
+            <div className={`save-status ${isSyncing ? 'saving' : ''}`}>
+              {isSyncing ? (
+                <>
+                  <span className="sync-spinner"></span>
+                  ● Saving...
+                </>
+              ) : (
+                '✓ Saved to cloud'
+              )}
+            </div>
           </div>
           <div className="progress-container">
             <div className="progress-bar" style={{ width: `${progress}%` }}></div>
@@ -233,7 +253,11 @@ export default function Form() {
             🔗 Share Link
           </button>
           <button className="reset-btn" onClick={() => {
-            if (window.confirm("Are you sure you want to clear all data?")) resetData();
+            confirmAction({
+              title: "Clear All Data?",
+              message: "Are you sure you want to reset this resume? You will lose all current progress.",
+              onConfirm: () => resetData()
+            });
           }} title="Clear All Data">
             🗑
           </button>
@@ -290,27 +314,30 @@ export default function Form() {
                 <div className="form-row">
                   <input
                     type="text"
-                    placeholder="Full Name"
+                    placeholder="Full Name*"
                     value={resumeData.name}
                     onChange={(e) => updateResume("name", e.target.value)}
+                    required
                   />
                   <input
                     type="text"
-                    placeholder="Job Title"
+                    placeholder="Job Title*"
                     value={resumeData.title}
                     onChange={(e) => updateResume("title", e.target.value)}
+                    required
                   />
                 </div>
                 <div className="form-row">
                   <input
                     type="email"
-                    placeholder="Email"
+                    placeholder="Email Address*"
                     value={resumeData.email}
                     onChange={(e) => updateResume("email", e.target.value)}
+                    required
                   />
                   <input
                     type="tel"
-                    placeholder="Phone"
+                    placeholder="Phone Number"
                     value={resumeData.phone}
                     onChange={(e) => updateResume("phone", e.target.value)}
                   />
@@ -356,7 +383,14 @@ export default function Form() {
               </div>
 
               <div className="form-section">
-                <h3>Summary</h3>
+                <div className="section-header">
+                  <h3>Summary</h3>
+                  <AIAssistant
+                    field="summary"
+                    currentData={resumeData}
+                    onApply={(text) => updateResume("summary", text)}
+                  />
+                </div>
                 <textarea
                   placeholder="Professional summary..."
                   value={resumeData.summary}
@@ -370,15 +404,24 @@ export default function Form() {
           {currentStep === 2 && (
             <div className="step-content animate-in">
               <div className="form-section">
-                <h3>Projects</h3>
+                <div className="section-header">
+                  <h3>Projects</h3>
+                  <AIAssistant
+                    field="projects"
+                    currentData={resumeData}
+                    onApply={(text) => addArrayItem("projects", { title: "New Project", description: text })}
+                  />
+                </div>
                 {resumeData.projects?.map((project, i) => (
                   <div key={i} className="form-row-group">
-                    <input
-                      type="text"
-                      placeholder="Project Title"
-                      value={project.title}
-                      onChange={(e) => updateArrayField("projects", i, "title", e.target.value)}
-                    />
+                    <div className="field-with-ai">
+                      <input
+                        type="text"
+                        placeholder="Project Title"
+                        value={project.title}
+                        onChange={(e) => updateArrayField("projects", i, "title", e.target.value)}
+                      />
+                    </div>
                     <textarea
                       placeholder="Description..."
                       value={project.description}
@@ -397,15 +440,24 @@ export default function Form() {
               </div>
 
               <div className="form-section">
-                <h3>Experience</h3>
+                <div className="section-header">
+                  <h3>Experience</h3>
+                  <AIAssistant
+                    field="experience"
+                    currentData={resumeData}
+                    onApply={(text) => addArrayItem("experience", { company: "New Company", role: resumeData.title || "Specialist", description: text })}
+                  />
+                </div>
                 {resumeData.experience?.map((exp, i) => (
                   <div key={i} className="form-row-group">
-                    <input
-                      type="text"
-                      placeholder="Role"
-                      value={exp.role}
-                      onChange={(e) => updateArrayField("experience", i, "role", e.target.value)}
-                    />
+                    <div className="field-with-ai">
+                      <input
+                        type="text"
+                        placeholder="Role"
+                        value={exp.role}
+                        onChange={(e) => updateArrayField("experience", i, "role", e.target.value)}
+                      />
+                    </div>
                     <input
                       type="text"
                       placeholder="Company"
@@ -606,6 +658,8 @@ export default function Form() {
           </div>
         </div>
       )}
+
+      <ResumeTipsWidget resumeData={resumeData} />
     </div>
   );
 }

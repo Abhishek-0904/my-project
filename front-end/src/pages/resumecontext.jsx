@@ -1,4 +1,6 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useContext, useState, useEffect, useRef } from "react";
+import Toast from "../components/Toast";
+import ConfirmModal from "../components/ConfirmModal";
 
 const ResumeContext = createContext(null);
 
@@ -33,126 +35,236 @@ const defaultResume = {
 };
 
 export function ResumeProvider({ children }) {
-  // Profiles state
-  const [profiles, setProfiles] = useState(() => {
-    const saved = localStorage.getItem("resumeProfiles");
-    if (saved) return JSON.parse(saved);
+  const [profiles, setProfiles] = useState([]);
+  const [activeProfileId, setActiveProfileId] = useState(null);
+  const [template, setTemplate] = useState("modern");
+  const [resumeData, setResumeData] = useState(defaultResume);
+  const [selectedGradient, setSelectedGradient] = useState("none");
+  const [customColors, setCustomColors] = useState({});
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [toast, setToast] = useState(null);
+  const [confirmModal, setConfirmModal] = useState({ isOpen: false, title: '', message: '', onConfirm: null });
 
-    // Migration: If old data exists, create a profile from it
-    const oldData = localStorage.getItem("resumeData");
-    if (oldData) {
-      const initialProfile = {
-        id: "default-" + Date.now(),
-        name: "My First Resume",
-        data: JSON.parse(oldData),
-        template: localStorage.getItem("resumeTemplate") || "modern",
-        gradient: localStorage.getItem("resumeGradient") || "none",
-        color: null, // Custom color if any
-        lastModified: Date.now()
-      };
-      return [initialProfile];
+  const showToast = (message, type = 'info') => {
+    setToast({ message, type });
+  };
+
+  const confirmAction = (config) => {
+    setConfirmModal({ ...config, isOpen: true });
+  };
+
+  const saveTimeoutRef = useRef(null);
+
+  const getAuthToken = () => {
+    try {
+      const userStr = localStorage.getItem('user');
+      if (!userStr || userStr === "undefined") return null;
+      const user = JSON.parse(userStr);
+      return user?.token;
+    } catch (e) {
+      console.error("Error getting auth token:", e);
+      return null;
+    }
+  };
+
+  // 1. Initial Load and Session Sync
+  const fetchProfiles = async () => {
+    const token = getAuthToken();
+
+    // If no token (logged out), clear all data
+    if (!token) {
+      setProfiles([]);
+      setActiveProfileId(null);
+      setResumeData(defaultResume);
+      return;
     }
 
-    return [];
-  });
+    try {
+      const res = await fetch('http://localhost:5000/api/resumes', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProfiles(data);
+        if (data.length > 0) {
+          const lastActiveId = localStorage.getItem("activeProfileId");
+          const initialId = data.find(p => p._id === lastActiveId)?._id || data[0]._id;
+          setActiveProfileId(initialId);
+        } else {
+          setActiveProfileId(null);
+          setResumeData(defaultResume);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch profiles:", err);
+    }
+  };
 
-  const [activeProfileId, setActiveProfileId] = useState(() => {
-    return localStorage.getItem("activeProfileId") || (profiles.length > 0 ? profiles[0].id : null);
-  });
-
-  // Derived active profile
-  const activeProfile = profiles.find(p => p.id === activeProfileId) || null;
-
-  // Active Profile States (for performance and easier binding)
-  const [template, setTemplate] = useState(activeProfile?.template || null);
-  const [resumeData, setResumeData] = useState(activeProfile?.data || defaultResume);
-  const [selectedGradient, setSelectedGradient] = useState(activeProfile?.gradient || "none");
-  const [customColors, setCustomColors] = useState(() => {
-    const saved = localStorage.getItem("resumeColors");
-    return saved ? JSON.parse(saved) : {};
-  });
-
-  // Update active profile states when activeProfileId changes
   useEffect(() => {
-    if (activeProfile) {
-      setTemplate(activeProfile.template);
-      setResumeData(activeProfile.data);
-      setSelectedGradient(activeProfile.gradient);
-    }
-  }, [activeProfileId]);
+    fetchProfiles();
 
-  // Auto-Save to Profiles list and LocalStorage
+    // Listen for storage changes (for cross-tab logout/login)
+    const handleStorageChange = (e) => {
+      if (e.key === 'user') fetchProfiles();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // 2. Switch Active Profile (Only when ID changes or first load)
+  useEffect(() => {
+    if (!activeProfileId || profiles.length === 0) return;
+
+    const active = profiles.find(p => p._id === activeProfileId);
+    if (active) {
+      // Only set if it's actually different or if we don't have data yet
+      setTemplate(active.template || "modern");
+      setResumeData(active.data || defaultResume);
+      setSelectedGradient(active.gradient || "none");
+      localStorage.setItem("activeProfileId", activeProfileId);
+    }
+  }, [activeProfileId, profiles.length]); // Only react to ID change or initial list load
+
+  // 3. Auto-Save to Backend (Debounced)
   useEffect(() => {
     if (!activeProfileId) return;
 
-    setProfiles(prev => prev.map(p =>
-      p.id === activeProfileId
-        ? { ...p, data: resumeData, template, gradient: selectedGradient, lastModified: Date.now() }
-        : p
-    ));
-  }, [resumeData, template, selectedGradient]);
+    // Debounce API call
+    if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
 
-  useEffect(() => {
-    localStorage.setItem("resumeProfiles", JSON.stringify(profiles));
-    if (activeProfileId) localStorage.setItem("activeProfileId", activeProfileId);
-  }, [profiles, activeProfileId]);
+    setIsSyncing(true); // Start showing "Saving..."
 
-  useEffect(() => {
-    localStorage.setItem("resumeColors", JSON.stringify(customColors));
-  }, [customColors]);
-
-  const createNewProfile = (profileName = "New Resume", templateId = "modern") => {
-    const newId = "profile-" + Date.now();
-    const newProfile = {
-      id: newId,
-      name: profileName,
-      data: defaultResume,
-      template: templateId,
-      gradient: "none",
-      lastModified: Date.now()
-    };
-    setProfiles(prev => [newProfile, ...prev]);
-    setActiveProfileId(newId);
-  };
-
-  const deleteProfile = (id) => {
-    setProfiles(prev => {
-      const filtered = prev.filter(p => p.id !== id);
-      if (activeProfileId === id) {
-        setActiveProfileId(filtered.length > 0 ? filtered[0].id : null);
+    saveTimeoutRef.current = setTimeout(async () => {
+      const token = getAuthToken();
+      if (!token) {
+        setIsSyncing(false);
+        return;
       }
-      return filtered;
-    });
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/resumes/${activeProfileId}`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            title: resumeData.name ? `${resumeData.name}'s Resume` : 'Untitled Resume',
+            template,
+            data: resumeData,
+            gradient: selectedGradient
+          })
+        });
+
+        if (res.ok) {
+          const updated = await res.json();
+          setProfiles(prev => prev.map(p => p._id === activeProfileId ? updated : p));
+        }
+      } catch (err) {
+        console.error("Auto-save failed:", err);
+      } finally {
+        setIsSyncing(false); // Done saving
+      }
+    }, 2000);
+
+    return () => { if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current); };
+  }, [resumeData, template, selectedGradient, activeProfileId]);
+
+  const createNewProfile = async (profileName = "New Resume", templateId = "modern") => {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch('http://localhost:5000/api/resumes', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title: profileName,
+          template: templateId,
+          data: defaultResume
+        })
+      });
+      const newProfile = await res.json();
+      if (res.ok) {
+        setProfiles(prev => [newProfile, ...prev]);
+        setActiveProfileId(newProfile._id);
+        showToast("New resume created!", "success");
+      }
+    } catch (err) {
+      console.error("Create failed:", err);
+    }
   };
 
-  const renameProfile = (id, newName) => {
-    setProfiles(prev => prev.map(p => p.id === id ? { ...p, name: newName } : p));
+  const deleteProfile = async (id) => {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/resumes/${id}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (res.ok) {
+        setProfiles(prev => {
+          const filtered = prev.filter(p => p._id !== id);
+          if (activeProfileId === id) {
+            setActiveProfileId(filtered.length > 0 ? filtered[0]._id : null);
+          }
+          return filtered;
+        });
+        showToast("Resume deleted successfully", "success");
+      }
+    } catch (err) {
+      console.error("Delete failed:", err);
+      showToast("Delete failed", "error");
+    }
   };
 
-  const updateResume = (field, value) => {
-    setResumeData((prev) => ({ ...prev, [field]: value }));
+  const renameProfile = async (id, newName) => {
+    const token = getAuthToken();
+    if (!token) return;
+
+    try {
+      const res = await fetch(`http://localhost:5000/api/resumes/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ title: newName })
+      });
+      if (res.ok) {
+        setProfiles(prev => prev.map(p => p._id === id ? { ...p, title: newName } : p));
+        showToast("Resume renamed successfully", "success");
+      }
+    } catch (err) {
+      console.error("Rename failed:", err);
+      showToast("Rename failed", "error");
+    }
   };
+
+  const updateResume = (field, value) => setResumeData(prev => ({ ...prev, [field]: value }));
 
   const updateArrayField = (field, index, subField, value) => {
-    setResumeData((prev) => {
+    setResumeData(prev => {
       const arr = [...prev[field]];
       arr[index] = { ...arr[index], [subField]: value };
       return { ...prev, [field]: arr };
     });
   };
 
-  const addArrayItem = (field, defaultItem) => {
-    setResumeData((prev) => ({ ...prev, [field]: [...prev[field], defaultItem] }));
-  };
+  const addArrayItem = (field, defaultItem) => setResumeData(prev => ({ ...prev, [field]: [...prev[field], defaultItem] }));
 
-  const updateCustomColor = (templateId, color) => {
-    setCustomColors(prev => ({ ...prev, [templateId]: color }));
-  };
+  const updateCustomColor = (templateId, color) => setCustomColors(prev => ({ ...prev, [templateId]: color }));
 
   const resetData = () => {
-    if (window.confirm("This will clear THIS profile data. Continue?")) {
+    // We can't easily toast a confirmation without more logic, but we can replace the internal alerts later.
+    if (window.confirm("Clear all data in this resume?")) {
       setResumeData(defaultResume);
-      setSelectedGradient("none");
+      showToast("Data reset successful", "info");
     }
   };
 
@@ -163,10 +275,7 @@ export function ResumeProvider({ children }) {
       if (targetIndex >= 0 && targetIndex < newOrder.length) {
         [newOrder[index], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[index]];
       }
-      return {
-        ...prev,
-        sectionConfig: { ...prev.sectionConfig, order: newOrder }
-      };
+      return { ...prev, sectionConfig: { ...prev.sectionConfig, order: newOrder } };
     });
   };
 
@@ -175,10 +284,7 @@ export function ResumeProvider({ children }) {
       const newOrder = [...prev.sectionConfig.order];
       const [removed] = newOrder.splice(startIndex, 1);
       newOrder.splice(endIndex, 0, removed);
-      return {
-        ...prev,
-        sectionConfig: { ...prev.sectionConfig, order: newOrder }
-      };
+      return { ...prev, sectionConfig: { ...prev.sectionConfig, order: newOrder } };
     });
   };
 
@@ -187,10 +293,7 @@ export function ResumeProvider({ children }) {
       ...prev,
       sectionConfig: {
         ...prev.sectionConfig,
-        visible: {
-          ...prev.sectionConfig.visible,
-          [sectionName]: !prev.sectionConfig.visible[sectionName]
-        }
+        visible: { ...prev.sectionConfig.visible, [sectionName]: !prev.sectionConfig.visible[sectionName] }
       }
     }));
   };
@@ -201,27 +304,48 @@ export function ResumeProvider({ children }) {
         profiles,
         activeProfileId,
         setActiveProfileId,
-        createNewProfile,
-        deleteProfile,
-        renameProfile,
         template,
         setTemplate,
         resumeData,
-        setResumeData,
         updateResume,
         updateArrayField,
         addArrayItem,
+        createNewProfile,
+        deleteProfile,
+        renameProfile,
         customColors,
         updateCustomColor,
         resetData,
+        selectedGradient,
+        setSelectedGradient,
         moveSection,
         reorderSections,
         toggleSection,
-        selectedGradient,
-        setSelectedGradient
+        isSyncing,
+        toast,
+        showToast,
+        setToast,
+        confirmAction
       }}
     >
       {children}
+      {toast && (
+        <Toast
+          message={toast.message}
+          type={toast.type}
+          onClose={() => setToast(null)}
+        />
+      )}
+      <ConfirmModal
+        isOpen={confirmModal.isOpen}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        onConfirm={() => {
+          confirmModal.onConfirm();
+          setConfirmModal(prev => ({ ...prev, isOpen: false }));
+        }}
+        onCancel={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+      />
     </ResumeContext.Provider>
   );
 }

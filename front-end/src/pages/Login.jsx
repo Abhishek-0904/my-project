@@ -1,15 +1,74 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import useResume from "./resumecontext";
 import "./Login.css";
 
 export default function Login() {
+    const { fetchProfiles, showToast } = useResume();
     const [isLogin, setIsLogin] = useState(true);
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        password: ""
+    });
+    const [error, setError] = useState("");
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
-    const handleSubmit = (e) => {
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        // Simulate login success and go to templates
-        navigate("/");
+        setError("");
+        setLoading(true);
+
+        const endpoint = isLogin ? "/api/auth/login" : "/api/auth/register";
+        const url = `http://localhost:5000${endpoint}`;
+
+        try {
+            const response = await fetch(url, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(isLogin ?
+                    { email: formData.email, password: formData.password } :
+                    formData
+                ),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Something went wrong");
+            }
+
+            if (!isLogin) {
+                showToast("Account created successfully! Please sign in.", "success");
+                setIsLogin(true);
+                setFormData({ ...formData, password: "" });
+                return;
+            }
+
+            // Save user info to local storage (only for Login)
+            localStorage.setItem("user", JSON.stringify(data));
+
+            // Refresh resumes state for the new user
+            await fetchProfiles();
+
+            // Redirect based on role
+            if (data.role === "admin") {
+                navigate("/admin");
+            } else {
+                navigate("/dashboard");
+            }
+        } catch (err) {
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
     };
 
     return (
@@ -35,20 +94,43 @@ export default function Login() {
                             {isLogin ? "Enter your details to continue" : "Start your professional journey today"}
                         </p>
 
+                        {error && <div className="error-message">{error}</div>}
+
                         <form onSubmit={handleSubmit}>
                             {!isLogin && (
                                 <div className="input-group">
                                     <label>Full Name</label>
-                                    <input type="text" placeholder="John Doe" required />
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        placeholder="John Doe"
+                                        value={formData.name}
+                                        onChange={handleChange}
+                                        required
+                                    />
                                 </div>
                             )}
                             <div className="input-group">
                                 <label>Email Address</label>
-                                <input type="email" placeholder="name@example.com" required />
+                                <input
+                                    type="email"
+                                    name="email"
+                                    placeholder="name@example.com"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
                             <div className="input-group">
                                 <label>Password</label>
-                                <input type="password" placeholder="••••••••" required />
+                                <input
+                                    type="password"
+                                    name="password"
+                                    placeholder="••••••••"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    required
+                                />
                             </div>
 
                             {isLogin && (
@@ -60,8 +142,8 @@ export default function Login() {
                                 </div>
                             )}
 
-                            <button type="submit" className="submit-btn">
-                                {isLogin ? "Sign In" : "Create Account"}
+                            <button type="submit" className="submit-btn" disabled={loading}>
+                                {loading ? "Processing..." : (isLogin ? "Sign In" : "Create Account")}
                             </button>
                         </form>
 

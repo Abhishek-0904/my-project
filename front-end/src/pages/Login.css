@@ -100,6 +100,17 @@
     margin-bottom: 2.5rem;
 }
 
+.error-message {
+    background: rgba(239, 68, 68, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    color: #ef4444;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    font-size: 0.85rem;
+    text-align: center;
+}
+
 .input-group {
     margin-bottom: 1.5rem;
 }

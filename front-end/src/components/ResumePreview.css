@@ -28,12 +28,12 @@
   right: 0;
   bottom: 0;
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, transparent 40%, rgba(0, 0, 0, 0.05) 100%),
-    url("https://www.transparenttextures.com/patterns/natural-paper.png");
-  /* Subtle paper texture */
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0) 0%, rgba(0, 0, 0, 0.02) 100%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 50%, rgba(0, 0, 0, 0.05) 100%);
+  /* Subtle paper depth effect without external assets */
   pointer-events: none;
   z-index: 5;
-  opacity: 0.4;
+  opacity: 0.5;
 }
 
 .resume-preview:hover:not(.full-page)::after {
@@ -154,13 +154,13 @@
   opacity: 0.8;
 }
 
-/* Multi-Gradient Support for accents and headers */
-.resume-preview h1 {
+/* Multi-Gradient Support for accents - only for headings that aren't in colored headers */
+.resume-preview:not(.layout-header-top):not(.layout-header-accent):not(.layout-sidebar) h1 {
   background: var(--primary-gradient) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
   background-clip: text !important;
-  display: block;
+  color: var(--primary) !important;
 }
 
 .resume-preview h3 {

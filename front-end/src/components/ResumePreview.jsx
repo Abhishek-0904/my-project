@@ -85,7 +85,7 @@ export default function ResumePreview({ template, data, fullPage }) {
       <div className="resume-header-info">
         <div className="header-text-with-qr">
           <div className="header-titles">
-            <h1>{data.name || "Your Name"}</h1>
+            <h1>{(data && data.name) ? data.name : "Your Name"}</h1>
             {data.title && <p className="resume-title">{data.title}</p>}
           </div>
           {qrCodeContent}
