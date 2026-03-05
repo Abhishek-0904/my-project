@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./AIAssistant.css";
 
-const ROLE_TEMPLATES = {
+export const ROLE_TEMPLATES = {
     "web developer": {
         summary: [
             "Full-stack Web Developer with expertise in React, Node.js, and modern web architectures. Passionate about building scalable and user-centric applications.",
@@ -50,98 +50,86 @@ const ROLE_TEMPLATES = {
             "Presented key data insights to stakeholders that led to a $2M increase in annual marketing efficiency."
         ]
     },
-    "sales executive": {
+    "full stack developer": {
         summary: [
-            "Results-oriented Sales Executive with a proven track record of exceeding targets and building long-term client relationships.",
-            "Persuasive communicator specializing in B2B sales, market expansion, and strategic lead generation.",
-            "High-energy sales professional with expertise in CRM management and closing complex high-value deals."
+            "Versatile Full Stack Developer with expertise in React, Node.js, and cloud ecosystems. Skilled in building end-to-end applications that prioritize user experience and system performance.",
+            "Dynamic engineer proficient in both frontend and backend technologies, specializing in scalable architectures and efficient API design.",
+            "Solution-oriented developer with a strong focus on clean code, automated testing, and seamless DevOps integration."
         ],
         experience: [
-            "Exceeded annual sales quota by 140%, generating $1.5M in new business revenue.",
-            "Expanded market presence into 3 new territories, acquiring 50+ enterprise-level clients.",
-            "Streamlined the sales funnel process, increasing conversion rates from lead to close by 20%."
+            "Architected and deployed a highly scalable SaaS platform using React, Node.js, and AWS, handling 200k+ concurrent users.",
+            "Streamlined cross-platform synchronization, reducing data latency by 60% across web and mobile applications.",
+            "Implemented robust security protocols and OAuth2 authentication, achieving 100% compliance with industry standards."
         ]
     },
-    "marketing manager": {
+    "ui/ux designer": {
         summary: [
-            "Strategic Marketing Manager with a track record of driving growth through data-driven campaigns and market analysis.",
-            "Result-oriented professional focused on digital marketing, SEO, and content strategy to maximize ROI.",
-            "Dynamic leader skilled in brand positioning, cross-functional collaboration, and multi-channel campaign management."
+            "User-Centric UI/UX Designer with a passion for creating intuitive, visually stunning digital experiences. Expert in Figma, Adobe XD, and user research.",
+            "Creative professional dedicated to bridging the gap between business goals and user needs through empathetic design and data-driven insights.",
+            "Detail-oriented designer specializing in design systems, high-fidelity prototyping, and accessibility-first interfaces."
         ],
         experience: [
-            "Increased organic website traffic by 60% within 6 months through a comprehensive SEO and content strategy overhaul.",
-            "Managed a marketing budget of $50k+, delivering 20% year-over-year revenue growth.",
-            "Directed the launch of 5 new products across global markets, exceeding initial sales targets by 30%."
+            "Redesigned the core product interface, resulting in a 35% increase in user retention and a 20% boost in task completion speed.",
+            "Established a comprehensive Design System that improved developer handoff efficiency by 50%.",
+            "Conducted extensive usability testing with 100+ participants to identify and resolve critical navigation friction points."
         ]
     },
-    "human resources": {
+    "backend developer": {
         summary: [
-            "HR Professional dedicated to talent acquisition, employee engagement, and organizational development.",
-            "People-centric HR Manager with expertise in policy implementation, conflict resolution, and performance management.",
-            "Strategic recruiter focused on building high-performance teams and fostering an inclusive company culture."
+            "Backend specialist with deep expertise in Node.js, Python, and SQL/NoSQL databases. Focused on building high-performance server-side logic.",
+            "Efficiency-driven engineer specializing in microservices, system optimization, and high-availability architectures.",
+            "Expert in API development and database management, with a strong focus on security, scalability, and clean modular code."
         ],
         experience: [
-            "Reduced time-to-hire by 30% by implementing a new Applicant Tracking System (ATS).",
-            "Designed and launched an employee wellness program that increased retention rates by 20%.",
-            "Oversaw the recruitment of 100+ employees across 5 departments for a rapid-growth startup."
+            "Optimized database queries and indexing strategies, reducing server response time by 75% for high-traffic endpoints.",
+            "Developed a robust microservices architecture that enabled independent scaling of 10+ core business modules.",
+            "Integrated real-time data processing systems using Redis and Kafka, processing 50M+ events daily with zero downtime."
         ]
     },
-    "teacher": {
+    "frontend developer": {
         summary: [
-            "Dedicated Educator with a passion for student development and innovative teaching methodologies.",
-            "Academic professional specializing in curriculum design and personalized learning strategies.",
-            "Experienced teacher committed to creating an engaging and inclusive classroom environment."
+            "Frontend specialist passionate about crafting responsive, performant, and accessible web interfaces using React and modern CSS.",
+            "UI-focused developer with an eye for detail and a commitment to high-performance rendering and smooth user interactions.",
+            "Expert in building scalable component libraries and complex state management systems to power modern web applications."
         ],
         experience: [
-            "Increased student test scores by 25% through the implementation of interactive digital learning tools.",
-            "Developed a common-core-aligned curriculum for the Science department, adopted by the entire school district.",
-            "Mentored a group of 30+ students in extra-curricular research projects, winning 5 national level awards."
+            "Improved vitals scores (LCP, CLS) by 40% through advanced asset optimization and lazy-loading techniques.",
+            "Led the development of a reusable UI component library used across 15+ company projects, ensuring brand consistency.",
+            "Implemented intricate animations and transitions using Framer Motion, enhancing the overall user experience rating by 15%."
         ]
     },
-    "accountant": {
+    "mobile app developer": {
         summary: [
-            "Detail-oriented Accountant with expertise in financial reporting, tax compliance, and auditing.",
-            "Financial professional specializing in budget analysis, cost reduction, and GAAP standards.",
-            "CPA-focused accountant with a strong background in corporate finance and ERP systems like SAP/Oracle."
+            "Mobile App Developer with expertise in React Native, Flutter, and native mobile ecosystems. Focused on cross-platform excellence.",
+            "Versatile developer specializing in high-performance iOS and Android applications with a single codebase philosophy.",
+            "Creative engineer dedicated to bringing complex ideas to life on mobile devices with smooth performance and native-like experiences."
         ],
         experience: [
-            "Managed a portfolio of assets worth $10M+, ensuring 100% compliance with federal tax regulations.",
-            "Identified $200k in annual cost savings through a thorough audit of operational expenses.",
-            "Automated the month-end closing process, reducing cycles from 10 days to 4 days."
-        ]
-    },
-    "project manager": {
-        summary: [
-            "PMP-certified Project Manager with a focus on agile methodologies and cross-functional team leadership.",
-            "Strategic leader experienced in managing multi-million dollar projects from inception to completion.",
-            "Operations focused PM specializing in risk management, resource allocation, and stakeholder communication."
-        ],
-        experience: [
-            "Successfully delivered a $5M infrastructure project 2 months ahead of schedule.",
-            "Implemented Agile/Scrum practices that improved team velocity by 40% within 2 quarters.",
-            "Managed a global team of 50+ developers, designers, and QA engineers across 3 time zones."
+            "Launched a top-rated mobile application with 500k+ downloads and a 4.8-star average rating on both App Store and Play Store.",
+            "Optimized app startup time by 50% and reduced bundle size by 30% through modular architecture and tree-shaking.",
+            "Integrated complex features including push notifications, real-time sync, and location-based services."
         ]
     }
 };
 
 const AI_SUGGESTIONS = {
     summary: [
-        "Results-driven [Title] with a proven track record of delivering high-quality solutions in [Industry].",
-        "Adaptable and innovative [Title] with expertise in [Core Skill]. Committed to professional excellence.",
-        "Highly motivated [Title] skilled in [Skill1] and [Skill2]. Dedicated to continuous learning and growth.",
-        "Dynamic [Title] with [Years]+ years of experience. Expertise in [Process] to drive business results."
+        "Results-driven [Title] with a proven track record of delivering high-quality solutions in the technology sector.",
+        "Adaptable and innovative [Title] with expertise in modern frameworks. Committed to professional excellence and growth.",
+        "Highly motivated [Title] skilled in problem-solving and strategic planning. Dedicated to continuous learning.",
+        "Dynamic [Title] with extensive experience in streamlining processes and driving business impact through technical excellence."
     ],
     experience: [
-        "Steered [Project Name], resulting in a [Percentage]% increase in team productivity.",
-        "Integrated [Technology] to streamline workflows, saving [Number] hours per week.",
-        "Spearheaded the development of [System], which enhanced user engagement by [Percentage]%.",
-        "Resolved complex technical issues for [Product], reducing customer churn by [Percentage]%."
+        "Steered high-impact initiatives, resulting in a [Percentage]% increase in overall team productivity and output.",
+        "Integrated modern technologies to streamline complex workflows, saving the company [Number] hours per week in manual labor.",
+        "Spearheaded the development of core systems, which enhanced user engagement metrics by [Percentage]% over 6 months.",
+        "Resolved critical technical bottlenecks, reducing performance issues and customer churn by [Percentage]%."
     ],
     projects: [
-        "Engineered a [Project Type] using [Tech Stack] that solves [Problem].",
-        "Designed a scalable [System Name] optimized for [Performance/Load].",
-        "Launched an innovative [Tool Name] that automates [Task], gaining positive feedback from users.",
-        "Developed a robust [Application] leveraging [AI/API] for real-time data processing."
+        "Engineered a high-performance [Project Type] using modern tech stacks that solved critical business automation challenges.",
+        "Designed a scalable [System Name] optimized for high-load scenarios and low-latency response times.",
+        "Launched an innovative platform that automates complex tasks, gaining significant positive feedback and user adoption.",
+        "Developed a robust application leveraging real-time APIs for data processing and intelligent decision making."
     ]
 };
 
@@ -149,11 +137,13 @@ const AIAssistant = ({ field, currentData, onApply }) => {
     const [isOpen, setIsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [suggestions, setSuggestions] = useState([]);
+    const [typingText, setTypingText] = useState({});
 
     const generateSuggestions = () => {
         const title = (currentData.title || "").toLowerCase();
         setLoading(true);
         setIsOpen(true);
+        setTypingText({});
 
         setTimeout(() => {
             let results = [];
@@ -169,14 +159,31 @@ const AIAssistant = ({ field, currentData, onApply }) => {
             const displayTitle = currentData.title || "Professional";
             const generic = (AI_SUGGESTIONS[field] || [])
                 .map(s => s.replace(/\[Title\]/g, displayTitle))
-                .map(s => s.replace(/\[Industry\]/g, "the industry"))
-                .slice(0, 2); // Only take 2 generic ones if we have specific ones
+                .map(s => s.replace(/\[Percentage\]/g, "30"))
+                .map(s => s.replace(/\[Number\]/g, "15"))
+                .slice(0, 2);
 
             results = [...results, ...generic];
 
             setSuggestions(results);
             setLoading(false);
-        }, 800);
+
+            // Start typing effect for each suggestion
+            results.forEach((s, idx) => {
+                let current = "";
+                const chars = s.split("");
+                let i = 0;
+                const interval = setInterval(() => {
+                    if (i < chars.length) {
+                        current += chars[i];
+                        setTypingText(prev => ({ ...prev, [idx]: current }));
+                        i++;
+                    } else {
+                        clearInterval(interval);
+                    }
+                }, 15);
+            });
+        }, 1200);
     };
 
     const handleApply = (text) => {
@@ -211,9 +218,12 @@ const AIAssistant = ({ field, currentData, onApply }) => {
                         ) : (
                             <div className="suggestions-list">
                                 {suggestions.map((s, i) => (
-                                    <div key={i} className="suggestion-item">
-                                        <p>{s}</p>
-                                        <button className="apply-btn" onClick={() => handleApply(s)}>Use this</button>
+                                    <div key={i} className="suggestion-item animate-in" style={{ animationDelay: `${i * 0.1}s` }}>
+                                        <div className="suggestion-text">
+                                            {typingText[i] || ""}
+                                            <span className="typing-cursor">|</span>
+                                        </div>
+                                        <button className="apply-btn" onClick={() => handleApply(s)}>Use this idea</button>
                                     </div>
                                 ))}
                             </div>

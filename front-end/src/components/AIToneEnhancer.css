@@ -1,0 +1,135 @@
+.ai-tone-enhancer {
+    position: relative;
+    display: inline-block;
+}
+
+.tone-btn {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    padding: 4px 10px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #4f46e5;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.tone-btn:hover {
+    background: #f8fafc;
+    border-color: #6366f1;
+    transform: translateY(-1px);
+}
+
+.tone-panel {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    width: 280px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-top: 8px;
+    border: 1px solid #f1f5f9;
+    padding: 12px;
+}
+
+.tone-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.tone-header span {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #1e293b;
+}
+
+.tone-header button {
+    background: transparent;
+    border: none;
+    font-size: 1.2rem;
+    color: #94a3b8;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.tone-selector {
+    display: flex;
+    gap: 4px;
+    background: #f1f5f9;
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+}
+
+.tone-selector button {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.tone-selector button.active {
+    background: white;
+    color: #4f46e5;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.tone-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.tone-option-item {
+    background: #f8fafc;
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid #f1f5f9;
+}
+
+.tone-option-item p {
+    margin: 0 0 8px;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: #334155;
+}
+
+.tone-option-item button {
+    width: 100%;
+    background: #6366f1;
+    color: white;
+    border: none;
+    padding: 6px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.tone-loading {
+    padding: 20px;
+    text-align: center;
+    font-size: 0.8rem;
+    color: #64748b;
+}
+
+.tone-placeholder {
+    font-size: 0.75rem;
+    color: #94a3b8;
+    text-align: center;
+    padding: 10px;
+}

@@ -17,6 +17,24 @@ export default function Login() {
     const [otp, setOtp] = useState("");
     const navigate = useNavigate();
 
+    // Agar user pehle se logged in hai toh login page pe mat roko
+    useEffect(() => {
+        try {
+            const userStr = localStorage.getItem('user');
+            const user = userStr ? JSON.parse(userStr) : null;
+            if (user) {
+                if (user.role === 'admin') {
+                    navigate('/admin', { replace: true });
+                } else {
+                    navigate('/dashboard', { replace: true });
+                }
+            }
+        } catch (e) {
+            localStorage.removeItem('user');
+        }
+    }, [navigate]);
+
+
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };

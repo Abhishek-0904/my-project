@@ -84,4 +84,24 @@ router.delete('/:id', protect, checkMaintenance, async (req, res) => {
     }
 });
 
+// @desc    Get a public resume by ID
+// @route   GET /api/resumes/public/:id
+// @access  Public
+router.get('/public/:id', async (req, res) => {
+    try {
+        const resume = await Resume.findById(req.params.id);
+        if (resume) {
+            res.json({
+                template: resume.template,
+                data: resume.data,
+                gradient: resume.gradient
+            });
+        } else {
+            res.status(404).json({ message: 'Resume not found' });
+        }
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
 module.exports = router;

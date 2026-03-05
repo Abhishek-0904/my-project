@@ -98,61 +98,69 @@
 .resume-view-container {
   flex: 1;
   width: 100%;
-  max-width: 900px;
+  max-width: 1200px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 1rem 0 5rem;
-  perspective: 2000px;
-  /* For 3D depth */
+  padding: 2rem 0 5rem;
 }
 
-.resume-view-container .resume-preview {
-  width: 100%;
-  max-width: 210mm;
-  min-height: 297mm;
-  background: white;
-  border-radius: 1px;
+/* The ref div inside container now handles main styling from React */
+.resume-view-container>div {
   position: relative;
   transform: rotateX(2deg);
-  /* Slight desk angle */
-  box-shadow:
-    0 5px 15px rgba(0, 0, 0, 0.08),
-    0 15px 35px rgba(0, 0, 0, 0.1),
-    0 50px 100px rgba(0, 0, 0, 0.15);
-  /* High-end paper lift shadow */
+  transform-origin: top center;
+  border-radius: 4px;
+}
+
+@media (max-width: 1024px) {
+  .resume-view-container>div {
+    transform: scale(0.8) rotateX(2deg);
+  }
 }
 
 @media (max-width: 768px) {
   .resume-view-actions {
-    flex-direction: column;
+    margin-bottom: 3rem;
+  }
+
+  .pdf-settings-panel {
     gap: 1rem;
-    margin-bottom: 1.5rem;
+    padding: 1rem;
   }
 
-  .back-to-form-btn,
-  .download-pdf-btn {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .resume-view-container {
-    padding-top: 0;
-  }
-
-  /* Scale the resume for mobile view */
-  .resume-view-container .resume-preview {
-    transform: scale(0.4) rotateX(2deg);
-    transform-origin: top center;
+  .resume-view-container>div {
+    transform: scale(0.5) rotateX(2deg);
     margin-bottom: -150mm;
-    /* Account for scaled height */
   }
 }
 
 @media (max-width: 480px) {
-  .resume-view-container .resume-preview {
-    transform: scale(0.35) rotateX(2deg);
+  .resume-view-container>div {
+    transform: scale(0.38) rotateX(2deg);
     margin-bottom: -180mm;
+  }
+}
+
+.download-pdf-btn.loading {
+  background: #64748b;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.download-spinner {
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: white;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 

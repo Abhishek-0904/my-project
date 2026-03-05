@@ -1,0 +1,144 @@
+.cropper-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 20000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.cropper-card {
+    background: white;
+    width: 100%;
+    max-width: 500px;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+}
+
+.cropper-header {
+    padding: 24px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.cropper-header h3 {
+    margin: 0;
+    font-size: 1.25rem;
+    color: #1e293b;
+    font-weight: 800;
+}
+
+.cropper-header p {
+    margin: 4px 0 0;
+    font-size: 0.875rem;
+    color: #64748b;
+}
+
+.cropper-container {
+    height: 400px;
+    background: #0f172a;
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    user-select: none;
+}
+
+.crop-box {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border: 2px solid white;
+    box-shadow: 0 0 0 1000px rgba(0, 0, 0, 0.6);
+    z-index: 10;
+    pointer-events: none;
+    border-radius: 4px;
+    /* Slight round for target */
+}
+
+/* If profile shape is circle, we might want to show circle, but square is safer for all templates */
+.cropper-container img {
+    max-width: none;
+    max-height: none;
+    transition: transform 0.05s linear;
+}
+
+.cropper-controls {
+    padding: 24px;
+    background: #f8fafc;
+}
+
+.zoom-slider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.zoom-slider input {
+    flex: 1;
+    accent-color: #6366f1;
+}
+
+.action-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.rotate-btn {
+    background: white;
+    border: 1.5px solid #e2e8f0;
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: #475569;
+}
+
+.rotate-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.main-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn-cancel {
+    background: transparent;
+    border: none;
+    padding: 10px 20px;
+    font-weight: 600;
+    cursor: pointer;
+    color: #64748b;
+}
+
+.btn-save {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    transition: all 0.2s;
+}
+
+.btn-save:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(99, 102, 241, 0.4);
+}

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import CustomDropdown from './CustomDropdown';
 import useResume from '../pages/resumecontext';
+import './CoverLetterGenerator.css';
 
 const CoverLetterGenerator = ({ profiles }) => {
     const { showToast } = useResume();

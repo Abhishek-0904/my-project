@@ -19,6 +19,14 @@ const ResumeSchema = new mongoose.Schema({
         type: Object,
         required: true
     },
+    gradient: {
+        type: String,
+        default: 'none'
+    },
+    customColors: {
+        type: Object,
+        default: {}
+    },
     lastModified: {
         type: Date,
         default: Date.now

@@ -129,11 +129,30 @@
     border-color: rgba(99, 102, 241, 0.3);
 }
 
-.suggestion-item p {
-    margin: 0 0 10px 0;
+.suggestion-text {
+    margin: 0 0 12px 0;
     font-size: 0.85rem;
     color: #e2e8f0;
-    line-height: 1.5;
+    line-height: 1.6;
+    min-height: 3em;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+}
+
+.typing-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 14px;
+    background: #6366f1;
+    margin-left: 2px;
+    animation: blink 0.8s infinite;
+    vertical-align: middle;
+}
+
+@keyframes blink {
+    50% {
+        opacity: 0;
+    }
 }
 
 .apply-btn {

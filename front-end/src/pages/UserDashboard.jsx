@@ -90,7 +90,7 @@ export default function UserDashboard() {
         <div className="ud-container">
             {/* ── SIDEBAR ── */}
             <aside className="ud-sidebar">
-                <div className="ud-brand" onClick={() => navigate('/')}>
+                <div className="ud-brand" onClick={() => navigate('/templates')}>
                     <div className="ud-brand-logo">📄</div>
                     <h1>ResumePro</h1>
                 </div>
@@ -106,7 +106,7 @@ export default function UserDashboard() {
                     </button>
                     <button
                         className="ud-nav-btn"
-                        onClick={() => navigate('/')}
+                        onClick={() => navigate('/templates')}
                     >
                         <PlusIcon size={20} />
                         <span>Browse Templates</span>
@@ -153,7 +153,7 @@ export default function UserDashboard() {
                                 <h2>Your Dashboard</h2>
                                 <p>Manage your professional applications in one place</p>
                             </div>
-                            <button className="ud-create-main-btn" onClick={() => navigate('/')}>
+                            <button className="ud-create-main-btn" onClick={() => navigate('/templates')}>
                                 <PlusIcon size={24} />
                                 <span>Build New Resume</span>
                             </button>
@@ -205,7 +205,7 @@ export default function UserDashboard() {
                                     <div className="ud-empty-icon">📝</div>
                                     <h3>No resumes found</h3>
                                     <p>Start your professional journey by picking a template</p>
-                                    <button className="ud-create-main-btn" onClick={() => navigate('/')}>
+                                    <button className="ud-create-main-btn" onClick={() => navigate('/templates')}>
                                         Explore Templates
                                     </button>
                                 </div>

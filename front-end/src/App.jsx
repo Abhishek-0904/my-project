@@ -14,6 +14,9 @@ function App() {
       <div className="app-container">
         <BrowserRouter>
           <Routes>
+            {/* Root "/" seedha Login page pe redirect karo */}
+            <Route path="/" element={<Navigate to="/login" replace />} />
+
             <Route path="/login" element={<Login />} />
 
             {/* Protected Routes */}
@@ -29,20 +32,19 @@ function App() {
               </ProtectedRoute>
             } />
 
-            <Route path="/" element={
+            <Route path="/templates" element={
               <ProtectedRoute>
                 <Templete />
               </ProtectedRoute>
             } />
+
             <Route path="/form" element={
               <ProtectedRoute>
                 <Form />
               </ProtectedRoute>
             } />
-            <Route path="/view" element={<ResumeView />} />
 
-            {/* Redirect root to dashboard if logged in? Or just keep templates as home. */}
-            {/* <Route path="/" element={<Navigate to="/dashboard" />} /> */}
+            <Route path="/view" element={<ResumeView />} />
           </Routes>
         </BrowserRouter>
       </div>
